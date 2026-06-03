@@ -1,4 +1,5 @@
 import { useGameState } from './hooks/useGameState';
+import { useCompactMode } from './hooks/useCompactMode';
 import SetupScreen from './components/SetupScreen';
 import Dashboard from './components/Dashboard';
 import PlayerCard from './components/PlayerCard';
@@ -20,6 +21,8 @@ export default function App() {
     getTokyoPlayer,
     buildSetupPlayers,
   } = useGameState();
+
+  const { compact, setCompact } = useCompactMode();
 
   const leader = getLeader();
   const tokyoPlayer = getTokyoPlayer();
@@ -55,6 +58,8 @@ export default function App() {
         leader={leader}
         tokyoPlayer={tokyoPlayer}
         onNewGame={newGame}
+        compact={compact}
+        onToggleCompact={() => setCompact(!compact)}
       />
 
       <main className={`grid ${gridCols} gap-4 px-4 sm:px-6 pb-8 max-w-7xl mx-auto`}>
@@ -69,6 +74,7 @@ export default function App() {
             onLeaveTokyo={leaveTokyo}
             onRevive={revivePlayer}
             tokyoOccupied={tokyoOccupied && !player.inTokyo}
+            compact={compact}
           />
         ))}
       </main>

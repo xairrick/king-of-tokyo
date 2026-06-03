@@ -15,6 +15,7 @@ interface PlayerCardProps {
   onLeaveTokyo: (id: string) => void;
   onRevive: (id: string) => void;
   tokyoOccupied: boolean;
+  compact?: boolean;
 }
 
 export default function PlayerCard({
@@ -26,6 +27,7 @@ export default function PlayerCard({
   onLeaveTokyo,
   onRevive,
   tokyoOccupied,
+  compact = false,
 }: PlayerCardProps) {
   const [editingPlayerName, setEditingPlayerName] = useState(false);
   const [editingMonsterName, setEditingMonsterName] = useState(false);
@@ -63,7 +65,8 @@ export default function PlayerCard({
   return (
     <div
       className={`
-        relative rounded-2xl border-2 p-4 flex flex-col gap-4 transition-all duration-300
+        relative rounded-2xl border-2 flex flex-col transition-all duration-300
+        ${compact ? 'p-2 gap-2' : 'p-4 gap-4'}
         ${isDead
           ? 'border-gray-600 bg-gray-900/80 opacity-70 grayscale'
           : `${monster.borderColor} bg-slate-900/80`
@@ -73,18 +76,18 @@ export default function PlayerCard({
     >
       {/* Tokyo badge */}
       {player.inTokyo && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-extrabold px-3 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap">
+        <div className={`absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-black font-extrabold px-3 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap ${compact ? 'text-[10px]' : 'text-xs'}`}>
           🏙️ In Tokyo
         </div>
       )}
 
       {/* Dead overlay */}
       {isDead && (
-        <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center bg-black/60 z-10 gap-3">
-          <span className="text-6xl">💀</span>
+        <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center bg-black/60 z-10 gap-2">
+          <span className={compact ? 'text-4xl' : 'text-6xl'}>💀</span>
           <button
             onClick={() => onRevive(player.id)}
-            className="bg-green-600 hover:bg-green-500 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors active:scale-95 touch-manipulation shadow-lg"
+            className={`bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors active:scale-95 touch-manipulation shadow-lg ${compact ? 'px-3 py-1 text-xs' : 'px-5 py-2 text-sm'}`}
           >
             🩹 Revive (5 HP)
           </button>
@@ -92,8 +95,8 @@ export default function PlayerCard({
       )}
 
       {/* Header: avatar + names */}
-      <div className="flex items-center gap-3">
-        <MonsterAvatar monsterId={player.monsterId} size="md" dead={isDead} />
+      <div className="flex items-center gap-2">
+        <MonsterAvatar monsterId={player.monsterId} size={compact ? 'sm' : 'md'} dead={isDead} />
         <div className="flex-1 min-w-0">
           {/* Player name */}
           {editingPlayerName ? (
@@ -104,13 +107,13 @@ export default function PlayerCard({
               onChange={(e) => setPlayerNameDraft(e.target.value)}
               onBlur={commitPlayerName}
               onKeyDown={(e) => e.key === 'Enter' && commitPlayerName()}
-              className="w-full bg-white/10 text-white rounded-lg px-2 py-1 text-sm font-semibold outline-none focus:ring-2 focus:ring-yellow-400 mb-1"
+              className="w-full bg-white/10 text-white rounded-lg px-2 py-1 text-sm font-semibold outline-none focus:ring-2 focus:ring-yellow-400 mb-0.5"
               maxLength={20}
             />
           ) : (
             <button
               onClick={() => { setPlayerNameDraft(player.playerName); setEditingPlayerName(true); }}
-              className="text-white font-bold text-base hover:text-yellow-300 transition-colors text-left w-full truncate block mb-1"
+              className={`text-white font-bold hover:text-yellow-300 transition-colors text-left w-full truncate block mb-0.5 ${compact ? 'text-sm' : 'text-base'}`}
               title="Click to edit player name"
             >
               {player.playerName}
@@ -133,7 +136,7 @@ export default function PlayerCard({
           ) : (
             <button
               onClick={() => { setMonsterNameDraft(player.monsterName); setEditingMonsterName(true); }}
-              className={`text-sm font-medium hover:opacity-80 transition-opacity text-left w-full truncate block ${monster.textColor}`}
+              className={`font-medium hover:opacity-80 transition-opacity text-left w-full truncate block ${compact ? 'text-xs' : 'text-sm'} ${monster.textColor}`}
               title="Click to edit monster name"
             >
               {player.monsterName}
@@ -142,44 +145,79 @@ export default function PlayerCard({
         </div>
       </div>
 
-      {/* Health counter */}
-      <div className={`rounded-xl p-3 ${isDead ? 'bg-gray-800/50' : 'bg-red-950/60'}`}>
-        <CounterControl
-          value={player.health}
-          min={MIN_HEALTH}
-          max={MAX_HEALTH}
-          onDecrement={() => onAdjustHealth(player.id, -1)}
-          onIncrement={() => onAdjustHealth(player.id, 1)}
-          label="❤️ Health"
-          accentColor="text-red-300"
-          disabled={isDead}
-          onSound={playClickUp}
-          onSoundDown={playClickDown}
-        />
-      </div>
-
-      {/* Stars counter */}
-      <div className="rounded-xl bg-yellow-950/60 p-3">
-        <CounterControl
-          value={player.stars}
-          min={MIN_STARS}
-          max={MAX_STARS}
-          onDecrement={() => onAdjustStars(player.id, -1)}
-          onIncrement={() => onAdjustStars(player.id, 1)}
-          label="⭐ Stars"
-          accentColor="text-yellow-300"
-          disabled={isDead}
-          onSound={playClickUp}
-          onSoundDown={playClickDown}
-        />
-        {/* Star progress bar */}
-        <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-yellow-400 rounded-full transition-all duration-300"
-            style={{ width: `${(player.stars / MAX_STARS) * 100}%` }}
-          />
+      {compact ? (
+        /* ── Compact: health + stars side by side ── */
+        <div className="flex gap-2">
+          <div className={`flex-1 rounded-lg p-2 ${isDead ? 'bg-gray-800/50' : 'bg-red-950/60'}`}>
+            <CounterControl
+              value={player.health}
+              min={MIN_HEALTH}
+              max={MAX_HEALTH}
+              onDecrement={() => onAdjustHealth(player.id, -1)}
+              onIncrement={() => onAdjustHealth(player.id, 1)}
+              label="❤️ HP"
+              accentColor="text-red-300"
+              disabled={isDead}
+              onSound={playClickUp}
+              onSoundDown={playClickDown}
+              compact
+            />
+          </div>
+          <div className="flex-1 rounded-lg bg-yellow-950/60 p-2">
+            <CounterControl
+              value={player.stars}
+              min={MIN_STARS}
+              max={MAX_STARS}
+              onDecrement={() => onAdjustStars(player.id, -1)}
+              onIncrement={() => onAdjustStars(player.id, 1)}
+              label="⭐ Stars"
+              accentColor="text-yellow-300"
+              disabled={isDead}
+              onSound={playClickUp}
+              onSoundDown={playClickDown}
+              compact
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        /* ── Full: health and stars stacked ── */
+        <>
+          <div className={`rounded-xl p-3 ${isDead ? 'bg-gray-800/50' : 'bg-red-950/60'}`}>
+            <CounterControl
+              value={player.health}
+              min={MIN_HEALTH}
+              max={MAX_HEALTH}
+              onDecrement={() => onAdjustHealth(player.id, -1)}
+              onIncrement={() => onAdjustHealth(player.id, 1)}
+              label="❤️ Health"
+              accentColor="text-red-300"
+              disabled={isDead}
+              onSound={playClickUp}
+              onSoundDown={playClickDown}
+            />
+          </div>
+          <div className="rounded-xl bg-yellow-950/60 p-3">
+            <CounterControl
+              value={player.stars}
+              min={MIN_STARS}
+              max={MAX_STARS}
+              onDecrement={() => onAdjustStars(player.id, -1)}
+              onIncrement={() => onAdjustStars(player.id, 1)}
+              label="⭐ Stars"
+              accentColor="text-yellow-300"
+              disabled={isDead}
+              onSound={playClickUp}
+              onSoundDown={playClickDown}
+            />
+            <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-yellow-400 rounded-full transition-all duration-300"
+                style={{ width: `${(player.stars / MAX_STARS) * 100}%` }}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Tokyo buttons */}
       {!isDead && (
@@ -187,17 +225,17 @@ export default function PlayerCard({
           {player.inTokyo ? (
             <button
               onClick={() => onLeaveTokyo(player.id)}
-              className="flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 rounded-xl text-sm transition-colors active:scale-95 touch-manipulation"
+              className={`flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl transition-colors active:scale-95 touch-manipulation ${compact ? 'py-1 text-xs' : 'py-2 text-sm'}`}
             >
-              🚪 Leave Tokyo
+              🚪 {compact ? 'Leave' : 'Leave Tokyo'}
             </button>
           ) : (
             <button
               onClick={() => onClaimTokyo(player.id)}
               disabled={tokyoOccupied}
-              className="flex-1 bg-yellow-600 hover:bg-yellow-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-2 rounded-xl text-sm transition-colors active:scale-95 touch-manipulation"
+              className={`flex-1 bg-yellow-600 hover:bg-yellow-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors active:scale-95 touch-manipulation ${compact ? 'py-1 text-xs' : 'py-2 text-sm'}`}
             >
-              🏙️ Enter Tokyo
+              🏙️ {compact ? 'Tokyo' : 'Enter Tokyo'}
             </button>
           )}
         </div>
