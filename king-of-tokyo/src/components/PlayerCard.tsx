@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Player } from '../types/game';
 import { MAX_HEALTH, MIN_HEALTH, MAX_STARS, MIN_STARS } from '../types/game';
 import { getMonster } from '../constants/monsters';
 import MonsterAvatar from './MonsterAvatar';
 import CounterControl from './CounterControl';
+import { useSounds } from '../hooks/useSounds';
 
 interface PlayerCardProps {
   player: Player;
@@ -28,6 +29,17 @@ export default function PlayerCard({
   const [editingMonsterName, setEditingMonsterName] = useState(false);
   const [playerNameDraft, setPlayerNameDraft] = useState(player.playerName);
   const [monsterNameDraft, setMonsterNameDraft] = useState(player.monsterName);
+
+  const { playClick, playDeath } = useSounds();
+  const prevHealthRef = useRef(player.health);
+
+  // Trigger death sound when health transitions to 0
+  useEffect(() => {
+    if (prevHealthRef.current > 0 && player.health === 0) {
+      playDeath();
+    }
+    prevHealthRef.current = player.health;
+  }, [player.health, playDeath]);
 
   const monster = getMonster(player.monsterId);
   const isDead = player.health === 0;
@@ -133,6 +145,7 @@ export default function PlayerCard({
           label="❤️ Health"
           accentColor="text-red-300"
           disabled={isDead}
+          onSound={playClick}
         />
       </div>
 
@@ -147,6 +160,7 @@ export default function PlayerCard({
           label="⭐ Stars"
           accentColor="text-yellow-300"
           disabled={isDead}
+          onSound={playClick}
         />
         {/* Star progress bar */}
         <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">

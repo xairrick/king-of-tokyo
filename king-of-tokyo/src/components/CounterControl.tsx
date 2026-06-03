@@ -7,6 +7,7 @@ interface CounterControlProps {
   label: string;
   accentColor?: string;
   disabled?: boolean;
+  onSound?: () => void;
 }
 
 export default function CounterControl({
@@ -18,6 +19,7 @@ export default function CounterControl({
   label,
   accentColor = 'text-white',
   disabled = false,
+  onSound,
 }: CounterControlProps) {
   return (
     <div className="flex flex-col items-center gap-1">
@@ -26,7 +28,7 @@ export default function CounterControl({
       </span>
       <div className="flex items-center gap-2">
         <button
-          onClick={onDecrement}
+          onClick={() => { onSound?.(); onDecrement(); }}
           disabled={disabled || value <= min}
           aria-label={`Decrease ${label}`}
           className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold text-lg transition-colors active:scale-95 touch-manipulation"
@@ -37,7 +39,7 @@ export default function CounterControl({
           {value}
         </span>
         <button
-          onClick={onIncrement}
+          onClick={() => { onSound?.(); onIncrement(); }}
           disabled={disabled || value >= max}
           aria-label={`Increase ${label}`}
           className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold text-lg transition-colors active:scale-95 touch-manipulation"
