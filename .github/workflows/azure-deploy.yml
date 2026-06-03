@@ -1,0 +1,66 @@
+name: Deploy King of Tokyo to Azure Static Web Apps
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'king-of-tokyo/**'
+      - '.github/workflows/azure-deploy.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'king-of-tokyo/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: king-of-tokyo/package-lock.json
+
+      - name: Install dependencies
+        working-directory: king-of-tokyo
+        run: npm ci
+
+      - name: Build
+        working-directory: king-of-tokyo
+        run: npm run build
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: 'upload'
+          app_location: 'king-of-tokyo'
+          output_location: 'dist'
+          # api_location: ''  # Uncomment and set if you add an API backend
+        env:
+          NODE_VERSION: '20'
+
+  close-pull-request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request
+
+    steps:
+      - name: Close staging environment
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: 'close'
