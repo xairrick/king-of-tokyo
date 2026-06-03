@@ -18,8 +18,8 @@ export function useSounds() {
     return ctxRef.current;
   }, []);
 
-  /** Short click/tick for counter button presses */
-  const playClick = useCallback(() => {
+  /** Higher-pitched tick for increment (+) button */
+  const playClickUp = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
 
@@ -29,14 +29,35 @@ export function useSounds() {
     gain.connect(ctx.destination);
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(700, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(350, ctx.currentTime + 0.06);
+    osc.frequency.setValueAtTime(1100, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.07);
 
     gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
 
     osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.08);
+    osc.stop(ctx.currentTime + 0.09);
+  }, [getCtx]);
+
+  /** Lower-pitched tick for decrement (−) button */
+  const playClickDown = useCallback(() => {
+    const ctx = getCtx();
+    if (!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(350, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.07);
+
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.09);
   }, [getCtx]);
 
   /** Dramatic descending tone when a player's health hits zero */
@@ -74,5 +95,5 @@ export function useSounds() {
     osc2.stop(now + duration);
   }, [getCtx]);
 
-  return { playClick, playDeath };
+  return { playClickUp, playClickDown, playDeath };
 }

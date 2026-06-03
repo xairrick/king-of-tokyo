@@ -30,7 +30,7 @@ export default function PlayerCard({
   const [playerNameDraft, setPlayerNameDraft] = useState(player.playerName);
   const [monsterNameDraft, setMonsterNameDraft] = useState(player.monsterName);
 
-  const { playClick, playDeath } = useSounds();
+  const { playClickUp, playClickDown, playDeath } = useSounds();
   const prevHealthRef = useRef(player.health);
 
   // Trigger death sound when health transitions to 0
@@ -145,7 +145,8 @@ export default function PlayerCard({
           label="❤️ Health"
           accentColor="text-red-300"
           disabled={isDead}
-          onSound={playClick}
+          onSound={playClickUp}
+          onSoundDown={playClickDown}
         />
       </div>
 
@@ -160,7 +161,8 @@ export default function PlayerCard({
           label="⭐ Stars"
           accentColor="text-yellow-300"
           disabled={isDead}
-          onSound={playClick}
+          onSound={playClickUp}
+          onSoundDown={playClickDown}
         />
         {/* Star progress bar */}
         <div className="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
