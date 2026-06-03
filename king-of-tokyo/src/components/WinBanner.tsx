@@ -5,9 +5,10 @@ import MonsterAvatar from './MonsterAvatar';
 interface WinBannerProps {
   winner: Player;
   onPlayAgain: () => void;
+  onContinue: () => void;
 }
 
-export default function WinBanner({ winner, onPlayAgain }: WinBannerProps) {
+export default function WinBanner({ winner, onPlayAgain, onContinue }: WinBannerProps) {
   const monster = getMonster(winner.monsterId);
 
   return (
@@ -27,6 +28,13 @@ export default function WinBanner({ winner, onPlayAgain }: WinBannerProps) {
         <p className="text-yellow-300 text-xl font-bold mb-6">
           ⭐ {winner.stars} Stars — King of Tokyo!
         </p>
+
+        <button
+          onClick={onContinue}
+          className="w-full bg-white/10 hover:bg-white/20 text-white font-bold text-base py-3 rounded-2xl transition-all active:scale-95 touch-manipulation mb-3 border border-white/20"
+        >
+          ▶️ Continue Game
+        </button>
 
         <button
           onClick={onPlayAgain}

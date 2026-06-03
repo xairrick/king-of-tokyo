@@ -9,6 +9,8 @@ export default function App() {
     state,
     startGame,
     newGame,
+    continueGame,
+    revivePlayer,
     updatePlayer,
     adjustHealth,
     adjustStars,
@@ -65,13 +67,14 @@ export default function App() {
             onAdjustStars={adjustStars}
             onClaimTokyo={claimTokyo}
             onLeaveTokyo={leaveTokyo}
+            onRevive={revivePlayer}
             tokyoOccupied={tokyoOccupied && !player.inTokyo}
           />
         ))}
       </main>
 
       {state.phase === 'won' && winner && (
-        <WinBanner winner={winner} onPlayAgain={newGame} />
+        <WinBanner winner={winner} onPlayAgain={newGame} onContinue={continueGame} />
       )}
     </div>
   );

@@ -13,6 +13,7 @@ interface PlayerCardProps {
   onAdjustStars: (id: string, delta: number) => void;
   onClaimTokyo: (id: string) => void;
   onLeaveTokyo: (id: string) => void;
+  onRevive: (id: string) => void;
   tokyoOccupied: boolean;
 }
 
@@ -23,6 +24,7 @@ export default function PlayerCard({
   onAdjustStars,
   onClaimTokyo,
   onLeaveTokyo,
+  onRevive,
   tokyoOccupied,
 }: PlayerCardProps) {
   const [editingPlayerName, setEditingPlayerName] = useState(false);
@@ -78,8 +80,14 @@ export default function PlayerCard({
 
       {/* Dead overlay */}
       {isDead && (
-        <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-black/50 z-10">
+        <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center bg-black/60 z-10 gap-3">
           <span className="text-6xl">💀</span>
+          <button
+            onClick={() => onRevive(player.id)}
+            className="bg-green-600 hover:bg-green-500 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors active:scale-95 touch-manipulation shadow-lg"
+          >
+            🩹 Revive (5 HP)
+          </button>
         </div>
       )}
 

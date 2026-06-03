@@ -104,6 +104,19 @@ export function useGameState() {
     });
   }, []);
 
+  const continueGame = useCallback(() => {
+    setState((prev) => ({ ...prev, phase: 'playing', winnerId: null }));
+  }, []);
+
+  const revivePlayer = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.id === id ? { ...p, health: 5 } : p
+      ),
+    }));
+  }, []);
+
   const claimTokyo = useCallback((id: string) => {
     setState((prev) => ({
       ...prev,
@@ -142,6 +155,8 @@ export function useGameState() {
     state,
     startGame,
     newGame,
+    continueGame,
+    revivePlayer,
     updatePlayer,
     adjustHealth,
     adjustStars,
