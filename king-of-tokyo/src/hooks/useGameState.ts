@@ -104,6 +104,17 @@ export function useGameState() {
     });
   }, []);
 
+  const smashTokyo = useCallback(() => {
+    setState((prev) => {
+      const tokyoPlayer = prev.players.find((p) => p.inTokyo);
+      if (!tokyoPlayer) return prev;
+      const players = prev.players.map((p) =>
+        p.inTokyo ? p : { ...p, health: Math.max(MIN_HEALTH, p.health - 1) }
+      );
+      return { ...prev, players };
+    });
+  }, []);
+
   const continueGame = useCallback(() => {
     setState((prev) => ({ ...prev, phase: 'playing', winnerId: null }));
   }, []);
@@ -157,6 +168,7 @@ export function useGameState() {
     newGame,
     continueGame,
     revivePlayer,
+    smashTokyo,
     updatePlayer,
     adjustHealth,
     adjustStars,

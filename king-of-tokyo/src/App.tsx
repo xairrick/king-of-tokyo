@@ -1,5 +1,6 @@
 import { useGameState } from './hooks/useGameState';
 import { useCompactMode } from './hooks/useCompactMode';
+import { useSounds } from './hooks/useSounds';
 import SetupScreen from './components/SetupScreen';
 import Dashboard from './components/Dashboard';
 import PlayerCard from './components/PlayerCard';
@@ -12,6 +13,7 @@ export default function App() {
     newGame,
     continueGame,
     revivePlayer,
+    smashTokyo,
     updatePlayer,
     adjustHealth,
     adjustStars,
@@ -23,6 +25,15 @@ export default function App() {
   } = useGameState();
 
   const { compact, setCompact } = useCompactMode();
+
+  const { playSmash } = useSounds();
+
+  const handleSmash = () => {
+    if (tokyoPlayer) {
+      playSmash(tokyoPlayer.monsterId);
+      smashTokyo();
+    }
+  };
 
   const leader = getLeader();
   const tokyoPlayer = getTokyoPlayer();
@@ -58,6 +69,7 @@ export default function App() {
         leader={leader}
         tokyoPlayer={tokyoPlayer}
         onNewGame={newGame}
+        onSmash={handleSmash}
         compact={compact}
         onToggleCompact={() => setCompact(!compact)}
       />
